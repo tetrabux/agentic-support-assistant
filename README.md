@@ -1,4 +1,4 @@
-## llm_fullstack
+## Agentic Support LLM
 
 This is a support assistant for a small software product. Ask it what an error code means and it goes and reads the manual and the error wiki. Ask it about your orders and it actually looks them up. Ask for a refund and it can do that too, but not without a human saying yes first. The whole idea was to stop treating the RAG engine, the MCP server, the agent framework and the quantized model as four separate school projects sitting in four separate folders, and actually make them work as one thing.
 
