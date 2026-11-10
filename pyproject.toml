@@ -1,5 +1,5 @@
 [project]
-name = "llm-fullstack"
+name = "agentic-support-assistant"
 version = "0.1.0"
 description = "Agentic RAG support assistant: LangGraph supervisor over a RAG specialist and an MCP actions specialist, served on a quantized vLLM model."
 requires-python = ">=3.12"
