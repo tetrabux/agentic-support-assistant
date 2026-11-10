@@ -1,4 +1,4 @@
-from llm_fullstack.eval import task_success, retrieval_metrics, safety_injection, safety_isolation, safety_tenant_isolation
+from llm_fullstack.eval import task_success, retrieval_metrics, safety_injection, safety_isolation, safety_tenant_isolation, safety_direct_injection
 from llm_fullstack.eval.regression import save_results
 
 
@@ -8,6 +8,7 @@ def run_all() -> dict:
     injection = safety_injection.run_all()
     isolation = safety_isolation.run_all()
     tenant = safety_tenant_isolation.run_all()
+    direct = safety_direct_injection.run_all()
 
     return {
         "pass_rate": task["pass_rate"],
@@ -25,6 +26,10 @@ def run_all() -> dict:
         "agent_tool_isolation_ci": isolation["agent_tool_isolation_ci"],
         "tenant_block_rate": tenant["tenant_block_rate"],
         "tenant_block_rate_ci": tenant["tenant_block_rate_ci"],
+        "direct_injection_block_rate": direct["direct_injection_block_rate"],
+        "direct_injection_block_rate_ci": direct["direct_injection_block_rate_ci"],
+        "direct_injection_attempt_rate": direct["direct_injection_attempt_rate"],
+        "direct_injection_results": direct["direct_injection_results"],
     }
 
 
@@ -38,6 +43,7 @@ def main():
     print(f"injection block:     {results['block_rate']:.2f}  CI {results['block_rate_ci']}")
     print(f"agent tool isolation:{results['agent_tool_isolation_pass_rate']:.2f}  CI {results['agent_tool_isolation_ci']}")
     print(f"tenant isolation:    {results['tenant_block_rate']:.2f}  CI {results['tenant_block_rate_ci']}")
+    print(f"direct injection:    {results['direct_injection_block_rate']:.2f}  CI {results['direct_injection_block_rate_ci']}  (model attempted the action in {results['direct_injection_attempt_rate']:.0%} of cases)")
 
 
 if __name__ == "__main__":

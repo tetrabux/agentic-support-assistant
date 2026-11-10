@@ -4,7 +4,7 @@ from pathlib import Path
 RESULTS_PATH = Path(__file__).parent / "results.json"
 BASELINE_PATH = Path(__file__).parent / "baseline.json"
 
-HARD_GATE_METRICS = ["recall_at_k", "precision_at_k", "agent_tool_isolation_pass_rate", "block_rate", "tenant_block_rate"]
+HARD_GATE_METRICS = ["recall_at_k", "precision_at_k", "agent_tool_isolation_pass_rate", "block_rate", "tenant_block_rate", "direct_injection_block_rate"]
 
 
 def save_results(results: dict, path: Path = RESULTS_PATH) -> None:
