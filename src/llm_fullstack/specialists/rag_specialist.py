@@ -3,6 +3,7 @@ import json
 import httpx
 
 from llm_fullstack.config import settings
+from llm_fullstack.guardrails.injection import contains_injection_attempt
 
 
 def search(query: str, k: int = 5, source: str | None = None) -> list[dict]:
@@ -41,6 +42,7 @@ def rag_specialist_node(state):
             "query": query,
             "n_results": len(results),
             "sources": [r["source"] for r in results],
+            "injection_suspected": contains_injection_attempt(context),
         }],
     }
 

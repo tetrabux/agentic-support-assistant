@@ -1,6 +1,7 @@
 from openai import OpenAI
 from langgraph.graph import END
 from llm_fullstack.config import settings
+from llm_fullstack.tracing import timed_completion
 
 client = OpenAI(base_url=settings.model_service_url, api_key=settings.model_api_key)
 
@@ -42,7 +43,8 @@ def _tools_for(state):
 
 
 def supervisor_node(state):
-    resp = client.chat.completions.create(
+    resp, call_stats = timed_completion(
+        client,
         model=settings.model_name,
         messages=state["messages"],
         tools=_tools_for(state),
@@ -57,7 +59,7 @@ def supervisor_node(state):
     return {
         "messages": [result],
         "step_count": state["step_count"] + 1,
-        "trace": [{"specialist": "supervisor", "decision": decision}],
+        "trace": [{"specialist": "supervisor", "decision": decision, "model_calls": [call_stats]}],
     }
 
 

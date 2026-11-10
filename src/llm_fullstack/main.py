@@ -2,7 +2,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
 from llm_fullstack.supervisor.graph import build_graph
-from llm_fullstack.tracing import new_run_id, write_trace
+from llm_fullstack.tracing import new_run_id, write_trace, log_turn
 from llm_fullstack.guardrails.consistency import enforce_reply_consistency
 
 
@@ -28,7 +28,8 @@ def main():
 
     result = enforce_reply_consistency(result)
     write_trace(run_id, result["trace"])
-    print(f'{result["messages"][-1]["content"]} + {run_id}')
+    log_turn(run_id, result["trace"], "done", thread_id=run_id, customer_id=initial_state["customer_id"])
+    print(result["messages"][-1]["content"])
 
 
 

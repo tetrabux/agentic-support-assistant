@@ -7,6 +7,8 @@ from llm_fullstack.mcp_client import call_tool
 from llm_fullstack.guardrails.hitl import requires_approval, request_approval
 from llm_fullstack.guardrails.consistency import build_refund_reply
 from llm_fullstack.guardrails.tenant_scope import in_scope
+from llm_fullstack.guardrails.injection import contains_injection_attempt
+from llm_fullstack.tracing import timed_completion
 
 client = OpenAI(base_url=settings.model_service_url, api_key=settings.model_api_key)
 
@@ -62,13 +64,17 @@ def actions_specialist_node(state):
     tool_calls_made = []
     last_refund_result = None
     denied_out_of_scope = []
+    model_calls = []
+    injection_suspected = False
 
     for step in range(MAX_ACTION_STEPS):
-        resp = client.chat.completions.create(
+        resp, call_stats = timed_completion(
+            client,
             model=settings.model_name,
             messages=messages,
             tools=ACTIONS_TOOLS,
         )
+        model_calls.append(call_stats)
         message = resp.choices[0].message
 
         if not message.tool_calls:
@@ -113,6 +119,8 @@ def actions_specialist_node(state):
 
             if name == "issue_refund":
                 last_refund_result = result
+            if contains_injection_attempt(result):
+                injection_suspected = True
 
             messages.append({
                 "role": "tool",
@@ -125,11 +133,13 @@ def actions_specialist_node(state):
     if last_refund_result is not None:
         final_content = build_refund_reply(last_refund_result)
 
-    trace_entry = {"specialist": "actions", "request": request, "tool_calls": tool_calls_made}
+    trace_entry = {"specialist": "actions", "request": request, "tool_calls": tool_calls_made, "model_calls": model_calls}
     if last_refund_result is not None:
         trace_entry["refund_result"] = last_refund_result
     if denied_out_of_scope:
         trace_entry["denied_out_of_scope"] = denied_out_of_scope
+    if injection_suspected:
+        trace_entry["injection_suspected"] = True
 
     return {
         "messages": [{
